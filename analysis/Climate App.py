@@ -14,10 +14,10 @@ from flask import Flask, jsonify
 # Setup Database
 engine = create_engine("sqlite:///../Resources/hawaii.sqlite")
 
-#Automap base
+# Automap base
 Base = automap_base()
 
-# reflect an existing database into a new model
+# Reflect an existing database into a new model
 Base.prepare(engine, reflect= True)
 
 # Save references to each table
@@ -26,7 +26,7 @@ Station = Base.classes.station
 session = Session(engine)
 
 # Setup Flask
-# Create an app, make sure to pass __name__
+# Create an app, pass to __name__
 app = Flask(__name__)
 
 # Flask Routes 
@@ -40,7 +40,7 @@ def welcome():
         f"/api/v1.0/tobs<br/>"
         f"/api/v1.0/<start>/<end><br/>"
     )
-
+# Set up Precipitation
 @app.route("/api/v1.0/precipitation")
 def precipitation():
 
@@ -50,26 +50,33 @@ def precipitation():
     precipitation = {date:prcp for date, prcp in precip_data}
     return jsonify(precipitation)
 
+# Set up Stations
 @app.route("/api/v1.0/stations")
 def stations():
-    # Create our session (link) from Python to the DB
+
+# Create our session (link) from Python to the DB
         session = Session(engine)
-    # Query Stations
+
+# Query Stations
     stations_all = session.query(Station.station).all()
     session.close()
     stations_list = list(np.ravel(stations_all))
     return jsonify(stations_list)
 
+# Set up Tobs
 @app.route("/api/v1.0/tobs")
 def tobs():
+
 # Create our session (link) from Python to the DB
     session = Session(engine)
+
 # Query all Temperatures for the most active station ID
     temp_active = session.query(Measurement.date, Measurement.tobs).filter(Measurement.station == "USC00519281").filter(Measurement.date).all()
     session.close()
     temp_list = list(np.ravel(temp_active)
     return jsonify(temp_list)
 
+# Set up start and end
 # Return a JSON list of the minimum temperature, the average temperature, and the max temperature for a given start or start-end range.
 # When given the start only, calculate `TMIN`, `TAVG`, and `TMAX` for all dates greater than and equal to the start date.
 # When given the start and the end date, calculate the `TMIN`, `TAVG`, and `TMAX` for dates between the start and end date inclusive.
